@@ -31,6 +31,7 @@ class BoxShadowGenerator {
     this.opacity = opacity;
     this.opacityRef = opacityRef;
     this.inset = inset;
+    this.insetRef = inset.checked;
     this.previewBox = previewBox;
     this.rule = rule;
     this.webkitRule = webkitRule;
@@ -43,6 +44,7 @@ class BoxShadowGenerator {
     this.spreadRef.value = this.spread.value;
     this.blurRef.value = this.blur.value;
     this.colorRef.value = this.color.value;
+    this.opacityRef.value = this.opacity.value;
 
     this.applyRule();
     this.showRule();
@@ -51,7 +53,7 @@ class BoxShadowGenerator {
   applyRule() {
     const rgbValue = this.hexToRgb(this.colorRef.value) 
 
-    const shadowRule = `${this.horizontalRef.value}px ${this.verticalRef.value}px ${this.blurRef.value}px ${this.spreadRef.value}px rgba(${rgbValue})`;
+    const shadowRule = `${this.insetRef ? "inset": ""} ${this.horizontalRef.value}px ${this.verticalRef.value}px ${this.blurRef.value}px ${this.spreadRef.value}px rgba(${rgbValue}, ${this.opacity.value})`;
     
     this.previewBox.style.boxShadow = shadowRule;
     this.currentRule = shadowRule;
@@ -79,6 +81,13 @@ class BoxShadowGenerator {
         break;
       case "color":
         this.colorRef.value = value;
+        break;
+      case "opacity":
+        this.opacityRef.value = value;
+        break;
+      case "inset":
+        this.insetRef = value;
+        break;
     }
 
     this.applyRule();
@@ -145,6 +154,7 @@ const controls = [
   { element: blur, type: "blur" },
   { element: spread, type: "spread" },
   { element: color, type: "color" },
+  { element: opacity, type: "opacity" },
 ];
 
 controls.forEach(({ element, type }) => {
@@ -153,4 +163,26 @@ controls.forEach(({ element, type }) => {
   });
 });
 
-color.addEventListener;
+inset.addEventListener("input", (e) => {
+  const value = e.target.checked;
+
+  boxShadow.updateValue("inset", value)
+})
+
+const rulesArea = document.querySelector("#rules-area")
+const copyInstructions = document.querySelector("#copy-instructions")
+
+rulesArea.addEventListener("click", () => {
+
+  const rules = rulesArea.innerText.replace(/^\s*\n/gm, "")
+
+  navigator.clipboard.writeText(rules).then(() => {
+    copyInstructions.innerText = "Regra copiada com sucesso!"
+
+    setTimeout(() => {
+      copyInstructions.innerText = "Clique no quadro acima para copiar as regras"
+    }, 1000);
+  })
+
+  
+})
